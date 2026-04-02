@@ -1,0 +1,530 @@
+select distinct city from station 
+where ((
+ lower(city) like 'a%' or
+lower(city) like 'e%' or
+lower(city) like 'i%' or
+lower(city) like 'o%' or
+lower(city) like 'u%'   
+) and
+ (
+  lower(city) like '%a' or
+lower(city) like '%e' or
+lower(city) like '%i' or
+lower(city) like '%o' or
+lower(city) like '%u'   
+ ) 
+ ex:-
+ CITY	Starts vowel	Ends vowel	Result
+USA	✅	✅	✅ Printed
+AGRA	✅	✅	✅ Printed
+DELHI	❌	✅	❌
+SURAT	❌	❌	❌
+ 
+Query the list of CITY names from STATION that either do not start with vowels or do not end with vowels. Your result cannot contain duplicates.
+select distinct city from station 
+where not ((
+ lower(city) like 'a%' or
+lower(city) like 'e%' or
+lower(city) like 'i%' or
+lower(city) like 'o%' or
+lower(city) like 'u%'   
+) and
+ (
+  lower(city) like '%a' or
+lower(city) like '%e' or
+lower(city) like '%i' or
+lower(city) like '%o' or
+lower(city) like '%u'   
+ ) 
+ CITY = DELHI
+
+Starts vowel ❌
+Ends vowel ✅
+FALSE AND TRUE → FALSE
+NOT(FALSE) → TRUE
+
+2) Query the list of CITY names from STATION that do not start with vowels and do not end with vowels. Your result cannot contain duplicates.
+SELECT DISTINCT CITY
+FROM STATION
+WHERE
+      LOWER(CITY) NOT LIKE 'a%'
+  AND LOWER(CITY) NOT LIKE 'e%'
+  AND LOWER(CITY) NOT LIKE 'i%'
+  AND LOWER(CITY) NOT LIKE 'o%'
+  AND LOWER(CITY) NOT LIKE 'u%'
+  AND LOWER(CITY) NOT LIKE '%a'
+  AND LOWER(CITY) NOT LIKE '%e'
+  AND LOWER(CITY) NOT LIKE '%i'
+  AND LOWER(CITY) NOT LIKE '%o'
+  AND LOWER(CITY) NOT LIKE '%u';
+  
+  or
+  
+  select distinct city from station 
+where((
+ lower(city) not like 'a%' and
+lower(city) not like 'e%' and
+lower(city) not like 'i%' and
+lower(city) not like 'o%' and
+lower(city) not like 'u%'   
+) and
+ (
+  lower(city) not like '%a' and
+lower(city) not like '%e' and
+lower(city) not like '%i' and
+lower(city) not like '%o' and
+lower(city) not like '%u'   
+ ) );
+  
+  -->NOT A AND NOT B
+  -->NOT (A AND B)
+  here both are not same
+  
+ Q4)
+  SELECT Name
+FROM STUDENTS
+WHERE Marks > 75
+ORDER BY RIGHT(Name,3), ID;
+--here imp note is do orderby if both are same order so we do order by on the id else normal rule only
+
+
+
+Q4)
+Samantha interviews many candidates from different colleges using coding challenges and contests. 
+Write a query to print the contest_id, hacker_id, name, and the sums of total_submissions, total_accepted_submissions, total_views, and total_unique_views 
+for each contest sorted by contest_id. Exclude the contest from the result if all four sums are 0.
+ Note: A specific contest can be used to screen candidates at more than one college, but each college only holds 1 screening contest. and it executing but wrong result
+--this querey is good for understanding it tells how sql takes internally the join here we done different joins and also main part is 
+here the left join line takes internally as (((Contests JOIN Colleges)
+   JOIN Challenges)
+   LEFT JOIN View_Stats)
+with out any work with base table it just do join and append to the table were u wrote the query select of that particular table col
+
+SELECT 
+    c.contest_id,
+    c.hacker_id,
+    c.name,
+    COALESCE(SUM(ss.total_submissions), 0) AS total_submissions,
+    COALESCE(SUM(ss.total_accepted_submissions), 0) AS total_accepted_submissions,
+    COALESCE(SUM(vs.total_views), 0) AS total_views,
+    COALESCE(SUM(vs.total_unique_views), 0) AS total_unique_views
+FROM CONTESTS c
+JOIN Colleges col 
+    ON c.contest_id = col.contest_id
+JOIN Challenges ch 
+    ON col.college_id = ch.college_id
+
+LEFT JOIN (
+    SELECT challenge_id,
+           SUM(total_views) AS total_views,
+           SUM(total_unique_views) AS total_unique_views
+    FROM View_Stats
+    GROUP BY challenge_id
+) vs 
+    ON ch.challenge_id = vs.challenge_id
+
+LEFT JOIN (
+    SELECT challenge_id,
+           SUM(total_submissions) AS total_submissions,
+           SUM(total_accepted_submissions) AS total_accepted_submissions
+    FROM Submission_Stats
+    GROUP BY challenge_id
+) ss 
+    ON ch.challenge_id = ss.challenge_id
+
+GROUP BY c.contest_id, c.hacker_id, c.name
+HAVING 
+    COALESCE(SUM(ss.total_submissions),0) != 0
+    OR COALESCE(SUM(ss.total_accepted_submissions),0) != 0
+    OR COALESCE(SUM(vs.total_views),0) != 0
+    OR COALESCE(SUM(vs.total_unique_views),0) != 0
+
+ORDER BY c.contest_id;
+hierarichy
+
+Contests
+   ↓
+Colleges
+   ↓
+Challenges
+   ↓
+View_Stats
+Submission_Stats
+
+--You now understand that:
+
+LEFT JOIN does not look back at only Contests
+It operates on the entire accumulated result
+SELECT columns come from the final joined dataset
+GROUP BY applies to that combined dataset
+CTE is just a temporary named result
+That is advanced SQL mental modeling.
+
+Correct Logical Execution Order
+
+FROM
+JOIN
+WHERE
+GROUP BY
+HAVING
+SELECT
+DISTINCT
+ORDER BY
+TOP
+
+SELECT 
+CASE
+    WHEN A + B <= C OR A + C <= B OR B + C <= A 
+        THEN 'Not A Triangle'
+    WHEN A = B AND B = C 
+        THEN 'Equilateral'
+    WHEN A = B OR B = C OR A = C 
+        THEN 'Isosceles'
+    ELSE 'Scalene'
+END AS Triangle_Type
+FROM TRIANGLES;
+
+-->euclidieans formula
+SELECT 
+ROUND(
+    SQRT(
+        POWER(MAX(LAT_N) - MIN(LAT_N), 2) +
+        POWER(MAX(LONG_W) - MIN(LONG_W), 2)
+    ),4) AS DISTANCE
+FROM STATION;
+
+
+
+---------**********************--------------------------------------------------
+Pivot the Occupation column in OCCUPATIONS so that each Name is sorted alphabetically and displayed underneath its corresponding Occupation. 
+The output should consist of four columns (Doctor, Professor, Singer, and Actor) 
+in that specific order, with their respective names listed alphabetically under each column.
+
+Note: Print NULL when there are no more names corresponding to an occupation.
+
+Input Format
+
+WITH T AS
+(
+SELECT 
+Name,
+Occupation,
+ROW_NUMBER() OVER (PARTITION BY Occupation ORDER BY Name) rn
+FROM Occupations
+)
+
+SELECT
+MAX(CASE WHEN Occupation='Doctor' THEN Name END) AS Doctor,
+MAX(CASE WHEN Occupation='Professor' THEN Name END) AS Professor,
+MAX(CASE WHEN Occupation='Singer' THEN Name END) AS Singer,
+MAX(CASE WHEN Occupation='Actor' THEN Name END) AS Actor
+FROM T
+GROUP BY rn
+ORDER BY rn;
+
+but according to question we use this max  due to satisfy group by as well as remove nulls
+so max or null ignore nulls automatically so no problem
+-------------******************------------------------------------------------
+Query an alphabetically ordered list of all names in OCCUPATIONS,
+immediately followed by the first letter of each profession as a parenthetical (i.e.: enclosed in parentheses). 
+For example: AnActorName(A), ADoctorName(D), AProfessorName(P), and ASingerName(S).
+Query the number of ocurrences of each occupation in OCCUPATIONS.
+ Sort the occurrences in ascending order, and output them in the following format:
+
+There are a total of [occupation_count] [occupation]s.
+where [occupation_count] is the number of occurrences of an occupation in OCCUPATIONS and [occupation] is the lowercase occupation name. If more than one Occupation has the same [occupation_count], they should be ordered alphabetically.
+
+Note: There will be at least two entries in the table for each type of occupation.
+
+SELECT 
+    CONCAT(Name,'(',LEFT(Occupation,1),')')
+FROM OCCUPATIONS
+ORDER BY Name;
+
+SELECT 
+    CONCAT('There are a total of ', COUNT(*), ' ', LOWER(Occupation), 's.')
+FROM OCCUPATIONS
+GROUP BY Occupation
+ORDER BY COUNT(*), Occupation;
+-------------------------------------------------------------------------------------
+Q)
+select company.company_code,company.founder,
+count( distinct lead_manager.lead_manager_code),
+count(distinct senior_manager.senior_manager_code),
+count(distinct manager.manager_code),
+count(distinct employee.employee_code)
+from employee
+join manager on manager.manager_code=employee.manager_code
+join lead_manager on lead_manager.lead_manager_code=employee.lead_manager_code
+join senior_manager on senior_manager.senior_manager_code=employee.senior_manager_code
+join company on company.company_code=employee.company_code
+group by company.company_code,company.founder
+order by company.company_code
+
+-----------------------****************************----------------------------------
+ORDER BY company_code
+
+This works because:
+
+company_code uniquely identifies each company
+
+Sorting should be lexicographical (string sorting)
+
+Example:
+
+C_1
+C_10
+C_2
+
+This is correct because strings are sorted alphabetically, not numerically.
+----------------------***********************-------------------------------------
+
+-->imp points
+in join when u use the join it must satisfy condition of tuples if it fails only that tuple removed
+not for cols 
+
+if condition satifies in the both join function of the and clause then cols that u select in querey of that particular 
+tuple will display
+
+due to selection of various table other than employee table is primarykey table selected impdata in PK
+
+vvip one to understand:-
+JOIN :- writing multiple join the querey is nothing but doing operation of that join attributes and append to select the cols that u wrote on the
+ select the tuples which satisfy the condition of the join that are append to that col and display with remaining cols
+
+these are key to remember
+
+--good example to understand
+Result rule
+Condition 1	Condition 2	Join result
+True	True	Row appears
+True	False	Row removed
+False	True	Row removed
+False	False	Row removed
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Query the Western Longitude (LONG_W) for the largest Northern Latitude (LAT_N) in STATION that is less than 137.2345. Round your answer to  decimal places.
+Input Format
+The STATION table is described as follows:
+
+select round(long_w,4) from station
+where lat_n=(select max(lat_n) from station where lat_n<137.2345)
+
+-->Yes, exactly — it is similar to an XLOOKUP idea in Excel.
+Here the return value in lat_n with that row we find the value of long_w this where perfect use of select how select is running
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Query the Western Longitude (LONG_W)where the smallest Northern Latitude (LAT_N) in STATION is greater than 38.770. Round your answer to  decimal places.
+Input Format
+The STATION table is described as follows:
+
+select round(long_w,4) from station
+where lat_n=(select min(lat_n) from station where lat_n>38.7780)
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Consider p1(a,b)  and p2(c,d) to be two points on a 2D plane.
+
+a happens to equal the minimum value in Northern Latitude (LAT_N in STATION).
+b happens to equal the minimum value in Western Longitude (LONG_W in STATION).
+c happens to equal the maximum value in Northern Latitude (LAT_N in STATION).
+d happens to equal the maximum value in Western Longitude (LONG_W in STATION).
+Query the Manhattan Distance between points p1 and p2 and round it to a scale of  decimal places.
+
+select 
+round(abs(max(lat_n)-min(lat_n))+abs(max(long_w)-min(long_w)),4)
+from station
+
+note:- manhattan distance:-|x1 - x2| + |y1 - y2|
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+A median is defined as a number separating the higher half of a data set from the lower half.
+ Query the median of the Northern Latitudes (LAT_N) from STATION and round your answer to 4 decimal places
+
+
+select round(lat_n,4)from
+(select lat_n,
+row_number() over(order by lat_n) as rn, 
+count(*) over() as t 
+from station 
+order by lat_n) t
+where rn=(t+1)/2
+ORDER by lat_n
+------------------------------------------------------
+COUNT(*) OVER(
+    ORDER BY lat_n
+    ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+)
+------------------------------------------------------
+if u want to use the alternate for the rank() and want to use order by seperately
+
+-->ROW_NUMBER() OVER(ORDER BY lat_n) already sorts logically.
+so doesn't need here i wrote only wrote only for if the case come so how to be in that sistuation
+--> must u write orderby in the rank window functions otherwise error
+-->Median requires all rows, but GROUP BY collapses rows, breaking row numbers.
+note:- even if u don't do oreder by no problem but if u do in 1 querey must do in another query otherwise wrong results error
+ex;-
+1 a    1 a
+3 c    2 b 
+2 b    3 c                    here the rows values didn't same but data is same in 2 tables order varies 
+5 e    4 d                    ex:- if 2 row ordered table have a but in unsorted table contains 3 in that 2 row and wrong value c 
+4 d    5 e
+here rn=t+1/2 is a logic to find ,median of the dataset where t return total rows and rn current row
+
+note1:- here if u write count(*) this it is wrong it returns single value even if u try yo agg like lat_n,count(*)
+it is wrong because we didn't able to do aggregation in the group by 
+note2:- if u didn't write the lat_n in the inner querey it doesn't know the lat_n where and which location that
+particular value from (the lol part is it doesn't even know what lat_n is if u didn't specify the lat_n in the inner querey
+vvip:-
+for this remember inheritance concept
+parent->child->grandchild
+here child can access data from the parent but grandchild doesn't acess parent data in oops but not here some points only relate not all
+like that here also but here must specify the col u eant to acess otherwise invalid 
+the data u select that is source to outer query don't forget it
+
+-->u didn't able to directly write the no of rows because u don't known table values
+
+this is wrong querey which i thought first
+select round(lat_n,4)from
+(select lat_n,
+row_number() over(order by lat_n) as rn, 
+count(*) as t 
+from station
+group by lat_n,count(*)
+ order by lat_n) t
+where rn=(t+1)/2
+group by lat_n
+ORDER by lat_n
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Q)Samantha was tasked with calculating the average monthly salaries for all employees in the EMPLOYEES table, 
+but did not realize her keyboard's 0 key was broken until after completing the calculation. 
+She wants your help finding the difference between her miscalculation (using salaries with any zeros removed), and the actual average salary.
+Write a query calculating the amount of error (i.e.: actual-miscalculated average monthly salaries), and round it up to the next integer.
+
+SELECT CEIL(AVG(salary) - AVG(REPLACE(salary,'0','')))
+FROM employees;
+
+note:-
+The trick is that REPLACE() works on strings, but salary is usually stored as a number (INT).
+SQL automatically converts the number to a string, performs REPLACE(), then converts it back to a number when used in AVG().
+
+steps;-
+Correct average → AVG(salary)
+Wrong average → remove all 0s from salary
+Error → difference between them
+Round up → CEIL()
+
+ceil,round difference
+ex:- 201.1 
+ceil-202  ||  round -201
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+We define an employee's total earnings to be their monthly  worked, and the maximum total earnings to be the maximum total earnings for any employee in the Employee table. 
+Write a query to find the maximum total earnings for all employees as well as the total number of employees who have maximum total earnings.
+Then print these values as  space-separated integers.
+
+
+SELECT salary*months AS earnings, COUNT(*)
+FROM Employee
+GROUP BY earnings
+ORDER BY earnings DESC
+
+or
+
+
+SELECT MAX(salary*months), COUNT(*)
+FROM Employee
+WHERE salary*months = (SELECT MAX(salary*months) FROM Employee);
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Q)Julia conducted a  days of learning SQL contest. The start date of the contest was March 01, 2016 and the end date was March 15, 2016.
+Write a query to print total number of unique hackers who made at least  submission each day (starting on the first day of the contest), and find the hacker_id and name of the hacker who made maximum number of submissions each day.
+ If more than one such hacker has a maximum number of submissions, print the lowest hacker_id. The query should print this information for each day of the contest, sorted by the date.
+
+
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Write a query to output the names of those students whose best friends got offered a higher salary than them. 
+Names must be ordered by the salary amount offered to the best friends. 
+It is guaranteed that no two students got same salary offer.
+
+
+
+SELECT st.name from students st
+join friends frd on frd.id=st.id
+join packages pac on pac.id=st.id
+JOIN packages pac2 on pac2.id=frd.friend_id
+WHERE pac2.salary>pac.salary
+order by pac2.salary
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Ketty gives Eve a task to generate a report containing three columns: Name, Grade and Mark.
+ Ketty doesn't want the NAMES of those students who received a grade lower than 8.
+ The report must be in descending order by grade -- i.e. higher grades are entered first. 
+ If there is more than one student with the same grade (8-10) assigned to them, 
+ order those particular students by their name alphabetically. Finally, if the grade is lower than 8,
+ use "NULL" as their name and list them by their grades in descending order.
+ If there is more than one student with the same grade (1-7) assigned to them, 
+ order those particular students by their marks in ascending order.
+
+Write a query to help Eve.
+
+
+SELECT case when grades.grade>=8 then students.name
+else null 
+end as students_name, grades.grade, students.marks from students
+join grades on students.marks between grades.min_mark and grades.max_mark
+order by  grades.grade desc,
+case when grades.grade>=8 then students.name end asc, 
+case when grades.grade<8 then students.marks end asc;
+
+this is crazy good to learn which cover extreme topics
+explanation:-
+we dont use = because here 2numerical there here in one table which we must use that data so we use range for inbetween that data
+
+Internal Working:
+
+If condition TRUE → returns value
+If condition FALSE → returns NULL (default)
+
+Actual processing order by when all are satisfy in case we need add some more constraints
+Internal process:
+
+Compare A
+If tie → compare B
+If tie → compare C
+
+ex:-in this case when grades.grade>=8 then students.name end asc,  line the condtion not met tuples are becomes null and no sort on null
+
+CORE CONCEPT (VERY IMPORTANT)
+
+We are NOT sorting conditionally
+We are controlling participation in sorting
+
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+	
+	
+	
