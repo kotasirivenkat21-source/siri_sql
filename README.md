@@ -16,7 +16,7 @@ Tech Stack
 
 Project Steps:-
 📥 Data Collection
-Imported Barra dataset
+Imported dataset from a website
 Checked data format and structure
 
 🧹 Data Cleaning:-
